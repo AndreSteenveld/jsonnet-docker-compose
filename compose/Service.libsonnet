@@ -18,8 +18,8 @@ local utilities = import "./utilities.libsonnet";
     //Healthcheck   :: import "./Service/Healthcheck.libsonnet",
     //ULimits       :: import "./Service/ULimits.libsonnet, 
 
-    //Logging :: import "./Service/Logging.libsonnet",
-    logging( logging ) :: logging,
+    Logging :: import "./Service/Logging.libsonnet",
+    logging( logging = self.Logging.default( ) ) :: self.Logging + logging,
 
     //Config :: import "./Service/Config.libsonnet",
     configs( configs ) :: configs,

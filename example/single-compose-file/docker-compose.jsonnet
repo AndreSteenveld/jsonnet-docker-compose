@@ -5,13 +5,12 @@ local logging = C.Service + {
     logging ::: C.Service.logging({
      
         driver  : "syslog",
-        options : { }, 
-        // C.Service.Logging.options({
+        options ::: C.Service.Logging.options({
             
-        //     "syslog-address" : "udp://logs.papertrailapp.com:50183",
-        //     "tag"            : "{{.Name}}"
+            "syslog-address" : "udp://logs.papertrailapp.com:50183",
+            "tag"            : "{{.Name}}"
 
-        // })
+        })
 
     })
 
