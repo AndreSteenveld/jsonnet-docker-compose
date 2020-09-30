@@ -1,15 +1,20 @@
-local utilities = import "./utilities.libsonnet";
+local U = import "./utilities.libsonnet";
+local V = import "./validate.libsonnet";
 
-{
+local combiner = U.map_combiner({ });
 
-    create( ) :: { },
-    default( ) :: { },
+local combine = U.combine( U.empty, combiner );
+local mixin = U.mixin( combine );
 
-    combine :: utilities.combine(
-        self.default, 
-        function( left, right ) { }
-    ),
+local new = function( 
+        mixins = [ ],
+        
+    )
+    mixin( mixins, {
 
-    mixin :: utilities.mixin( self.combine )
-    
+    });
+
+{ 
+    new :: new,
+    combine :: combine
 }

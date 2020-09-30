@@ -1,14 +1,17 @@
-local utilities = import "../../utilities.libsonnet";
+local utilities = import "../utilities.libsonnet";
 
-{
-    create( ) :: { },
-    default( ) :: { },
+local combiner = function( left, right ) { };
 
-    combine :: utilities.combine(
-        self.default, 
-        function( left, right ) { }
-    ),
+local combine = utilities.combine( { }, combiner );
+local mixin = utilities.mixin( combine );
 
-    mixin :: utilities.mixin( self.combine )
+local new = function( 
+        
+        mixins = [ ]
     
-}
+    )
+    mixin( mixins, {
+        
+    });
+
+{ new :: new }

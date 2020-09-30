@@ -1,20 +1,51 @@
-local utilities = import "./utilities.libsonnet";
+local U = import "./utilities.libsonnet";
+local V = import "./validate.libsonnet";
 
-{
-    create( ) :: { },
-    default( ) :: { },
+local Service = import "./Service.libsonnet";
+local Network = import "./Network.libsonnet";
+local Volume  = import "./Volume.libsonnet";
+local Secret  = import "./Secret.libsonnet";
+local Config  = import "./Config.libsonnet";
 
-    combine :: utilities.combine(
-        self.default, 
-        function( left, right ) { }
-    ),
+local combiner = U.map_combiner({
 
-    mixin :: utilities.mixin( self.combine ),
+    //version( l, r ) :: ( l ),
+    services :: U.map_combiner({ "*" :: Service.combine }),
+    networks :: U.map_combiner({ "*" :: Network.combine }),
+    volumes :: U.map_combiner({ "*" :: Volume.combine }),
+    secrets :: U.map_combiner({ "*" :: Secret.combine }),
+    configs :: U.map_combiner({ "*" :: Config.combine }),
 
-    services( services ) :: services,
-    networks( networks ) :: networks,
-    volumes( volumes ) :: volumes,
-    configs( configs ) :: configs,
-    secrets( secrets ) :: secrets
+});
 
+local combine = U.combine( U.empty, combiner );
+local mixin = U.mixin( combine );
+
+local new = function( 
+        mixins   = [ ],
+        version  = null,
+        services = null,
+        networks = null,
+        volumes  = null,
+        secrets  = null,
+        configs  = null
+    )
+    mixin( mixins, {
+
+        [ U.key( kv ) ] : U.value( kv ) for kv in [
+
+            V.optional( "version", version ),
+            V.optional( "services", services ),
+            V.optional( "networks", networks ),
+            V.optional( "volumes", volumes ),
+            V.optional( "secrets", secrets ),
+            V.optional( "configs", configs )
+
+        ]
+
+    });
+
+{ 
+    new :: new,
+    combine :: combine
 }

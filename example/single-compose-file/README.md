@@ -14,3 +14,9 @@ To validate that docker-compose understands the output run:
 $ docker-compose config
 ```
 
+To create a neatly formatted yaml file run the output from jsonnet through docker-compose.
+
+```bash
+$ jsonnet ./docker-compose.jsonnet | docker-compose --file - config > ./docker-compose.yaml
+```
+
