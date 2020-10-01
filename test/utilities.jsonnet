@@ -251,5 +251,87 @@ local test( name, test ) = (
 
         true
 
+    )),
+
+    test( "utilities#combine", function( )(
+
+        local handlers = {
+
+            "*"( left, right, key ) :: (
+
+                [ key, left, right ]
+
+            )
+
+        };
+
+        local left = {
+            left : "left",
+            shared : "left"
+        };
+
+        local right = { 
+            right : "right",
+            shared : "right"
+        };
+
+        local combined = {
+            left   : "left",
+            shared : [ "shared", "left", "right" ],
+            right  : "right"
+        };
+
+        local combiner = U.map_combiner( handlers );
+        local combine = U.combine( U.empty, combiner );
+
+        assert std.isFunction( combine ) : "utilities#combine doesn't return a function";
+        assert combined == combine( left, right ) : "Combination of left and right yielded unexpected result";
+
+        true
+
+    )),
+
+    test( "utilities#mixin", function( )(
+
+        local handlers = {
+
+            shared( left, right ) :: ( left + right  )
+
+        };
+
+        local first = {
+            first : "first",
+            shared : [ "first" ],
+        };
+
+        local second = {
+            second : "second",
+            shared : [ "second" ],
+        };
+
+        local third = { 
+            third : "third",
+            shared : [ "third" ],
+        };
+
+        local forth = {
+            forth : "forth",
+            shared : [ "forth" ],
+        };
+
+        local mixed = first + second + third + forth + {
+            shared : [ "first", "second", "third", "forth" ],
+        };
+
+        local combiner = U.map_combiner( handlers );
+        local combine = U.combine( U.empty, combiner );
+        local mix = U.mixin( combine );
+
+        assert std.isFunction( mix ) : "utilities#mixin doesn't output a function";
+        assert mixed == mix( [ first, second, third ], forth ) : "Mixed result was unexpected";
+
+        true
+
     ))
+    
 ]
