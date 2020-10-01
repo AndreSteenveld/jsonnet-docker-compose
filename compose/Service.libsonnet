@@ -183,5 +183,22 @@ local new = function(
 
 Service + {
     new :: new,
-    combine :: combine
+    combine :: combine,
+
+    ports :: {
+        mappings( mappings ) :: mappings,
+    },
+
+    depends_on( services ) :: services,
+    //
+    // The compose spec allows for a little more nuance here but as I am currently targeting
+    // docker-compose I'm going to stick to what ever it will consume as of 3.8
+    //
+    // ( 
+    //
+    //     local depends_on( name ) = ([ name, Service.DependsOn.new( ) ]);
+    //
+    //     U.to_object( std.map( depends_on, services ) )
+    //
+    // ),
 }

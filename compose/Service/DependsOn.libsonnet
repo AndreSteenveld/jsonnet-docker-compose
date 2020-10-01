@@ -7,11 +7,15 @@ local mixin = utilities.mixin( combine );
 
 local new = function( 
         
-        mixins = [ ]
+        mixins = [ ],
+
+        condition = "service_started"
     
     )
     mixin( mixins, {
         
+        condition : condition
+
     });
 
 { new :: new }

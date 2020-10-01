@@ -30,12 +30,10 @@ C.File.new(
 
     services = { 
 
-        "logging" : logging,
-
-        "nginx" : C.Service.new( [ ], 
+        "nginx" : C.Service.new( [ logging ], 
         
             image   = "recipeyak/nginx:latest",
-            //ports   = C.Service.ports.mappings([ "80:80" ]),
+            ports   = C.Service.ports.mappings([ "80:80" ]),
             volumes = [
 
                 C.Service.Volume.mount( "react-static-files", "/var/app/dist" ),
@@ -43,14 +41,14 @@ C.File.new(
 
             ],
 
-            //depends_on = C.Service.depends_on([ "django", "react" ])
+            depends_on = C.Service.depends_on([ "django", "react" ])
         
         ),
 
-        "db" : C.Service.new( [ ],
+        "db" : C.Service.new( [ logging ],
 
             image   = "postgres:10.1",
-            //ports   : C.Service.Port.mappings([ "5432:5432" ]),
+            ports   = C.Service.ports.mappings([ "5432:5432" ]),
             volumes = [
 
                 C.Service.Volume.mount( "pgdata", "/var/lib/postgresql/data/" )
@@ -65,7 +63,7 @@ C.File.new(
 
         ),
 
-        "react" : C.Service.new( [ ], 
+        "react" : C.Service.new( [ logging ], 
 
             image    = "recipeyak/react:latest",
             env_file = [ ".env-production" ],
@@ -79,7 +77,7 @@ C.File.new(
 
         ),
 
-        "django" : C.Service.new( [ ],
+        "django" : C.Service.new( [ logging ],
 
             image    = "recipeyak/django:latest",
             env_file = [ ".env-production" ],
@@ -90,7 +88,7 @@ C.File.new(
 
             ],
 
-            //depends_on = C.Service.depends_on([ "db" ]),
+            depends_on = C.Service.depends_on([ "db" ]),
             restart = "always"
 
         )

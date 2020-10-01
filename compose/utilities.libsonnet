@@ -105,7 +105,7 @@ local map_combiner( handlers ) = (
         
         );
 
-        std.trace( std.toString( combined ), combined )
+        combined
         
     )
 
