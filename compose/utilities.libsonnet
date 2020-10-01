@@ -1,58 +1,131 @@
+local empty( ) = ({ });
+
+local key( kv ) = ( kv[ 0 ] );
+local value( kv ) = ( kv [ 1 ] );
+
+local get( o, k, d = null ) = (
+
+    if std.objectHas( o, k )
+    then o[ k ]
+    else d 
+
+);
+
+local entries( o ) = ( 
+
+    std.map( 
+        function( key )([ key, o[ key ] ]),
+        std.objectFields( o )
+    )
+
+);
+
+local to_object( pairs ) = ({
+
+    [ key( kv ) ] : value( kv ) for kv in std.set( std.reverse( std.filter( std.isArray, pairs ) ), key )
+
+});
+
+local combine( default, combiner ) = 
+    function( left, right ) default( ) + left + right + combiner( left, right );
+
+local mixin( combiner ) =
+    function( mixins, target ) std.foldr( combiner, mixins, target );
+
+local unzip_objects( left, right ) = (
+
+    local pick( key ) = ([ 
+        key, 
+        if std.objectHas( left, key ) then [ key, left[ key ] ] else null,
+        if std.objectHas( right, key ) then [ key, right[ key ] ] else null,
+    ]);
+
+    local keys = std.setUnion(
+        std.objectFields( left ),
+        std.objectFields( right )
+    );
+
+    std.map( pick, keys )
+
+);
+
+local map_combiner( handlers ) = (
+
+    function( left, right )(
+        
+        local combined = std.foldr(
+
+            function( tuple, _ )(
+
+                local tkey   = key( tuple );
+                local tleft  = if null == tuple[ 1 ] then [ null, null ] else tuple[ 1 ];
+                local tright = if null == tuple[ 2 ] then [ null, null ] else tuple[ 2 ];
+
+                local left_has_entry = null != key( tleft );
+                local right_has_entry = null != key( tright ); 
+
+                local handler = 
+                    if std.objectHasAll( handlers, tkey ) 
+                    then function( l, r, k )( 
+                        
+                        handlers[ tkey ]( value( l ), value( r ) ) 
+                        
+                    )
+                    else 
+                        if std.objectHasAll( handlers, "*" )
+                        then function( l, r, k )( 
+                            
+                            handlers[ "*" ]( value( l ), value( r ), k ) 
+                            
+                        )
+                        else function( l, r, k )(
+
+                            get( to_object([ l, r ]), k )
+
+                        )
+                ;
+
+                _ + { 
+                
+                    [ tkey ] : 
+                        if left_has_entry && right_has_entry 
+                        then handler( tleft, tright, tkey )
+                        else 
+                            if right_has_entry 
+                            then value( tright )
+                            else value( tleft ) 
+                    
+                }
+              
+            ),
+
+            unzip_objects( left, right ),
+
+            empty( )
+        
+        );
+
+        std.trace( std.toString( combined ), combined )
+        
+    )
+
+);
+
 {
+    empty :: empty,
 
-    empty( ) :: { },
+    key :: key,
+    value :: value, 
 
-    key( kv ) :: ( kv[ 0 ] ),
-    value( kv ) :: ( kv [ 1 ] ),
+    get :: get,
 
-    map_combiner( handlers ) :: (
+    to_object :: to_object,
+    entries :: entries,
 
-        local combine( tuple ) = (
+    map_combiner :: map_combiner,
+    combine :: combine,
+    mixin :: mixin,
 
-            local key   = tuple[ 0 ];
-            local left  = tuple[ 1 ];
-            local right = tuple[ 2 ];
-
-                 if std.objectHasAll( handlers, key ) then handlers[ key ]( left, right )
-            else if std.objectHasAll( handlers, "*" ) then handlers[ "*" ]( left, right, key )
-            else right
-
-        );
-
-        function( left, right )(
-
-            local unzipped = self.unzip_objects( left, right );
-            local merged = std.map( combine, unzipped );
-
-            self.zip_kv( merged )
-
-        )
-
-    ),
-
-    combine( default, combiner ) :: 
-        function( left, right ) default( ) + left + right + combiner( left, right ),
-
-    mixin( combiner ) ::
-        function( mixins, target ) std.foldr( combiner, mixins, target ),
-
-    unzip_objects( left, right ) :: (
-
-        local pick( key ) = ([ key, left[ key ], right[ key ] ]);
-
-        local keys = std.setUnion(
-            std.objectFields( left ),
-            std.objectFields( right )
-        );
-
-        std.map( pick, keys )
-
-    ),
-
-    zip_kv( pairs ) :: ({ 
-
-        [ self.key( kv ) ] : self.value( kv ) for kv in pairs
-
-    }),
+    unzip_objects :: unzip_objects,
 
 }

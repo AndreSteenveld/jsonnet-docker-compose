@@ -30,6 +30,8 @@ C.File.new(
 
     services = { 
 
+        "logging" : logging,
+
         "nginx" : C.Service.new( [ ], 
         
             image   = "recipeyak/nginx:latest",
