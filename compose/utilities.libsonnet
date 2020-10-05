@@ -20,6 +20,30 @@ local entries( o ) = (
 
 );
 
+local keys( o ) = (
+
+    std.objectFields( o )
+
+);
+
+local values( o ) = (
+
+    std.map( 
+        function( k )( o [ k ] ),
+        std.objectFields( o )
+    )
+
+);
+
+local setMap( f, o ) = (
+
+    std.map(
+        function ( kv ) f( key( kv ), value( kv ) ),
+        entries( o )
+    )
+
+);
+
 local to_object( pairs ) = ({
 
     [ key( kv ) ] : value( kv ) for kv in std.set( std.reverse( std.filter( std.isArray, pairs ) ), key )
@@ -119,13 +143,20 @@ local map_combiner( handlers ) = (
 
     get :: get,
 
-    to_object :: to_object,
     entries :: entries,
 
-    map_combiner :: map_combiner,
+    keys :: keys,
+    values :: values,
+
+    setMap :: setMap,
+
+    to_object :: to_object,
+    
     combine :: combine,
     mixin :: mixin,
 
     unzip_objects :: unzip_objects,
+
+    map_combiner :: map_combiner,
 
 }
