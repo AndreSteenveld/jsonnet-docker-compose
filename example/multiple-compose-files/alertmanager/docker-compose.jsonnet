@@ -18,12 +18,15 @@ alertmanager:
 */
 
 local C = import "../../../compose.libsonnet";
-
 local common = import "../common.libsonnet";
 local ServiceFileSet = import "../ServiceFileSet.libsonnet";
 
 ServiceFileSet
-    .new( version = "3.8" )
+    .new( 
+        build    = common.file.build,
+        compose  = common.file.compose,
+        override = common.file.override
+     )
     .service(
         
         "alertmanager", 
