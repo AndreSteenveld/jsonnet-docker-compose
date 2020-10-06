@@ -14,9 +14,9 @@ pushgateway:
 local C = import "../../compose.libsonnet";
 
 local common = import "../common.libsonnet";
-local ServiceFileSet = import "../ServiceFileSet.libsonnet";
+local FileSet = import "../FileSet.libsonnet";
 
-ServiceFileSet
+FileSet
     .new(
         build    = common.file.build,
         compose  = common.file.compose,

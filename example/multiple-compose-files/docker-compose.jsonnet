@@ -1,6 +1,6 @@
-local ServiceFileSet = import "./ServiceFileSet.libsonnet";
+local FileSet = import "./FileSet.libsonnet";
 
-local file_set = ServiceFileSet.from({
+local file_set = FileSet.from({
 
     // Jsonnet doesn't allow computed import statements, so this is the one place where
     // we will just have to bang out some of the paths.
@@ -14,4 +14,4 @@ local file_set = ServiceFileSet.from({
 
 });
 
-ServiceFileSet.manifestFileSet( file_set )
+FileSet.manifestFileSet( file_set )
