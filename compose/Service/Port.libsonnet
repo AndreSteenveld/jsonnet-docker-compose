@@ -1,17 +1,33 @@
-local utilities = import "../utilities.libsonnet";
+local U = import "../utilities.libsonnet";
+local V = import "../validate.libsonnet";
 
 local combiner = function( left, right ) { };
 
-local combine = utilities.combine( { }, combiner );
-local mixin = utilities.mixin( combine );
+local combine = U.combine( { }, combiner );
+local mixin = U.mixin( combine );
 
 local new = function( 
-        
-        mixins = [ ]
-    
+        mixins = [ ],
+        target, 
+        published = target,
+        protocol  = null,
+        mode      = null
     )
-    mixin( mixins, {
+    mixin( mixins, { } +
+        {
+            target : target,
+            published : published
+        }
+        +
+        {
         
+        [ U.key( kv ) ] : U.value( kv ) for kv in [
+
+            V.optional( "protocol", protocol ),
+            V.optional( "mode", mode )
+
+        ]
+
     });
 
 { new :: new }

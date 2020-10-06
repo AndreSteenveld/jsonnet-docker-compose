@@ -186,7 +186,14 @@ Service + {
     combine :: combine,
 
     ports :: {
-        mappings( mappings ) :: mappings,
+        mappings :: function( mappings )(
+
+            U.setMap(
+                function( k, v ) Service.Port.new( [ ], k, v ),
+                mappings
+            )
+
+        ),
     },
 
     depends_on( services ) :: services,
