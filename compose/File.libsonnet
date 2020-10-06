@@ -10,11 +10,11 @@ local Config  = import "./Config.libsonnet";
 local combiner = U.map_combiner({
 
     //version( l, r ) :: ( l ),
-    services :: U.map_combiner({ "*" :: Service.combine }),
-    networks :: U.map_combiner({ "*" :: Network.combine }),
-    volumes :: U.map_combiner({ "*" :: Volume.combine }),
-    secrets :: U.map_combiner({ "*" :: Secret.combine }),
-    configs :: U.map_combiner({ "*" :: Config.combine }),
+    // services :: U.map_combiner({ "*" :: Service.combine }),
+    // networks :: U.map_combiner({ "*" :: Network.combine }),
+    // volumes :: U.map_combiner({ "*" :: Volume.combine }),
+    // secrets :: U.map_combiner({ "*" :: Secret.combine }),
+    // configs :: U.map_combiner({ "*" :: Config.combine }),
 
 });
 
@@ -52,7 +52,8 @@ local new = function(
             })
 
         }
-        + {
+        + 
+        {
 
             [ U.key( kv ) ] : U.value( kv ) for kv in [
 
