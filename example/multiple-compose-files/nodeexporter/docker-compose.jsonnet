@@ -1,5 +1,4 @@
-local C = import "../../compose.libsonnet";
-
+local C = import "../../../compose.libsonnet";
 local common = import "../common.libsonnet";
 local FileSet = import "../FileSet.libsonnet";
 
@@ -18,7 +17,7 @@ FileSet
 
         files = { },
 
-        service = C.Service.new( [ common.restart_policy, common.network, common.labels ],
+        service = C.Service.new( [ common.restart_policy, common.networks, common.labels ],
         
             volumes = [
                 C.Service.Volume.bind( "/proc", "/host/proc" ),

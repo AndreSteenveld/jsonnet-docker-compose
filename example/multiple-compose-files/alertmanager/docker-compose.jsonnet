@@ -1,22 +1,3 @@
-/*
-alertmanager:
-    image: prom/alertmanager:v0.21.0
-    container_name: alertmanager
-    volumes:
-      - ./alertmanager:/etc/alertmanager
-    command:
-      - '--config.file=/etc/alertmanager/config.yml'
-      - '--storage.path=/alertmanager'
-    restart: unless-stopped
-    expose:
-      - 9093
-    networks:
-      - monitor-net
-    labels:
-      org.label-schema.group: "monitoring"
-
-*/
-
 local C = import "../../../compose.libsonnet";
 local common = import "../common.libsonnet";
 local FileSet = import "../FileSet.libsonnet";

@@ -1,5 +1,4 @@
-local C = import "../../compose.libsonnet";
-
+local C = import "../../../compose.libsonnet";
 local common = import "../common.libsonnet";
 local FileSet = import "../FileSet.libsonnet";
 
@@ -26,7 +25,7 @@ FileSet
 
         },
 
-        service = C.Service.new( [ common.restart_policy, common.network, common.labels ],
+        service = C.Service.new( [ common.restart_policy, common.networks, common.labels ],
         
             expose = [ "3000" ],
 

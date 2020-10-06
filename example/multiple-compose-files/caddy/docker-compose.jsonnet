@@ -1,5 +1,4 @@
-local C = import "../../compose.libsonnet";
-
+local C = import "../../../compose.libsonnet";
 local common = import "../common.libsonnet";
 local FileSet = import "../FileSet.libsonnet";
 
@@ -20,7 +19,7 @@ FileSet
             "./caddy" : "/etc/caddy"
         },
 
-        service = C.Service.new( [ common.restart_policy, common.network, common.labels ],
+        service = C.Service.new( [ common.restart_policy, common.networks, common.labels ],
         
             ports = C.Service.ports.mapping({
                 "3000" : "3000",
