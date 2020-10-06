@@ -32,7 +32,7 @@ local build_file( base_path, output, mixin, file_name = "docker-compose.build.ym
     local left  = U.get( output, file_name, C.File.new( ) );
     local right = U.get( mixin, file_name, C.File.new( ) );
 
-    local service_name = std.trace( std.manifestJsonEx( mixin, "    " ), mixin.service_name );
+    local service_name = mixin.service_name;
     local service = right.services[ service_name ];
 
     { 
