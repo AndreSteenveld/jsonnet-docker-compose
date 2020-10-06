@@ -21,7 +21,7 @@ FileSet
 
         service = C.Service.new( [ common.restart_policy, common.networks, common.labels ],
         
-            ports = C.Service.ports.mapping({
+            ports = C.Service.ports.mappings({
                 "3000" : "3000",
                 "9090" : "9090",
                 "9093" : "9093",
