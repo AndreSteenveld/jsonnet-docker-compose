@@ -10,11 +10,11 @@ local Config  = import "./Config.libsonnet";
 local combiner = U.map_combiner({
 
     //version( l, r ) :: ( l ),
-    // services :: U.map_combiner({ "*" :: Service.combine }),
-    // networks :: U.map_combiner({ "*" :: Network.combine }),
-    // volumes :: U.map_combiner({ "*" :: Volume.combine }),
-    // secrets :: U.map_combiner({ "*" :: Secret.combine }),
-    // configs :: U.map_combiner({ "*" :: Config.combine }),
+    services :: U.map_combiner({ "*"( l, r, k ) :: Service.combine( l, r ) }),
+    networks :: U.map_combiner({ "*"( l, r, k ) :: Network.combine( l, r ) }),
+    volumes :: U.map_combiner({ "*"( l, r, k ) :: Volume.combine( l, r ) }),
+    secrets :: U.map_combiner({ "*"( l, r, k ) :: Secret.combine( l, r ) }),
+    configs :: U.map_combiner({ "*"( l, r, k ) :: Config.combine( l, r ) }),
 
 });
 
