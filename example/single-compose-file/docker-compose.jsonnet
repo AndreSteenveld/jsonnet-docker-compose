@@ -33,7 +33,7 @@ C.File.new(
         "nginx" : C.Service.new( [ logging ], 
         
             image   = "recipeyak/nginx:latest",
-            ports   = C.Service.ports.mappings([ "80:80" ]),
+            ports   = [ "80:80" ],
             volumes = [
 
                 C.Service.Volume.mount( "react-static-files", "/var/app/dist" ),
@@ -48,7 +48,7 @@ C.File.new(
         "db" : C.Service.new( [ logging ],
 
             image   = "postgres:10.1",
-            ports   = C.Service.ports.mappings([ "5432:5432" ]),
+            ports   = [ "5432:5432" ],
             volumes = [
 
                 C.Service.Volume.mount( "pgdata", "/var/lib/postgresql/data/" )
