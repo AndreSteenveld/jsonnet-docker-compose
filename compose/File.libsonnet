@@ -30,20 +30,43 @@ local new = function(
         secrets  = null,
         configs  = null
     )
-    mixin( mixins, {
+    mixin( mixins, { }
+        + {
 
-        [ U.key( kv ) ] : U.value( kv ) for kv in [
+            service :: function( name, service = Service.new( ) ) self + std.mergePatch( self, { 
 
-            V.optional( "version", version ),
-            V.optional( "services", services ),
-            V.optional( "networks", networks ),
-            V.optional( "volumes", volumes ),
-            V.optional( "secrets", secrets ),
-            V.optional( "configs", configs )
+                services : { [ name ] : service }
 
-        ]
+            }),
 
-    });
+            network :: function( name, network = Network.new( ) ) self + std.mergePatch( self, {
+
+                networks : { [ name ] : network }
+
+            }),
+
+            volume :: function( name, volume = Volume.new( ) ) self + std.mergePatch( self, {
+
+                volumes : { [ name ] : volume }
+
+            })
+
+        }
+        + {
+
+            [ U.key( kv ) ] : U.value( kv ) for kv in [
+
+                V.optional( "version", version ),
+                V.optional( "services", services ),
+                V.optional( "networks", networks ),
+                V.optional( "volumes", volumes ),
+                V.optional( "secrets", secrets ),
+                V.optional( "configs", configs )
+
+            ]
+
+        }
+    );
 
 { 
     new :: new,
