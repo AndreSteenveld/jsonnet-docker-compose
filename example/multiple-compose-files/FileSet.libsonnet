@@ -20,10 +20,32 @@ local override_file( base_path, output, mixin, file_name = "docker-compose.overr
     local right = U.get( mixin, file_name, C.File.new( ) );
 
     //
-    // Patchup the file path so the source points to the correct base path
+    // Make sure to prefix the bindings with the appropiate base_path as well. With this
+    // override we know the volumes here _should_ only be the files specified in the #service( ... )
+    // constructor.
     //
+    local nested_service_volumes = U.setMap( 
+        function( name, service )(
 
-    { name : file_name, content : C.File.combine( left,  right ) }
+            local volumes = std.map( 
+                function( volume )(
+
+                         if std.isString( volume ) then volume
+                    else if volume.type != "bind"  then volume
+                    else                                volume + { source : base_path + volume.source }
+
+                ),
+                service.volumes
+            );
+
+            [ name, { volumes : volumes } ]
+        ),
+        right.services
+    );
+
+    local nested = std.mergePatch( right, { services : U.to_object( nested_service_volumes ) } );
+
+    { name : file_name, content : C.File.combine( left,  nested ) }
 
 );
 
@@ -46,7 +68,7 @@ local build_file( base_path, output, mixin, file_name = "docker-compose.build.ym
 
                     build = {
                         context    : base_path + U.get( service.build, "context", "." ),
-                        dockerfile : base_path + U.get( service.build, "dockerfile", "Dockerfile" ),
+                        //dockerfile : base_path + U.get( service.build, "dockerfile", "Dockerfile" ),
                         target     : service_name
                     },
 

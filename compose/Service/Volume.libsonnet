@@ -22,7 +22,9 @@ local new = function(
     new :: new,
     combine :: combine,
 
-    mount( source, target ) :: self.new( [ ], "mount", source, target ),
     bind( source, target ) :: self.new( [ ], "bind", source, target ),
+    volume( source, target ) :: self.new( [ ], "volume", source, target ),
+    tmpfs( ) :: error "Not implemented",
+    npipe( ) :: error "Not implemented"
 
 }
