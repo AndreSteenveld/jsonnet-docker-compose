@@ -21,7 +21,7 @@ FileSet
         
             volumes = [
 
-                C.Service.Volume.mount( "prometheus_data", "/prometheus" ),
+                C.Service.Volume.volume( "prometheus_data", "/prometheus" ),
 
             ],
 

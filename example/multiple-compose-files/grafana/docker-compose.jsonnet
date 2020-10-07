@@ -31,7 +31,7 @@ FileSet
 
             volumes = [
               
-                C.Service.Volume.mount( "grafana_data", "/var/lib/grafana" )
+                C.Service.Volume.volume( "grafana_data", "/var/lib/grafana" )
 
             ],
 

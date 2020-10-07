@@ -36,8 +36,8 @@ C.File.new(
             ports   = [ "80:80" ],
             volumes = [
 
-                C.Service.Volume.mount( "react-static-files", "/var/app/dist" ),
-                C.Service.Volume.mount( "django-static-files", "/var/app/django/static" )
+                C.Service.Volume.volume( "react-static-files", "/var/app/dist" ),
+                C.Service.Volume.volume( "django-static-files", "/var/app/django/static" )
 
             ],
 
@@ -51,7 +51,7 @@ C.File.new(
             ports   = [ "5432:5432" ],
             volumes = [
 
-                C.Service.Volume.mount( "pgdata", "/var/lib/postgresql/data/" )
+                C.Service.Volume.volume( "pgdata", "/var/lib/postgresql/data/" )
 
             ],
 
@@ -69,7 +69,7 @@ C.File.new(
             env_file = [ ".env-production" ],
             volumes  = [
 
-                C.Service.Volume.mount( "react-static-files", "/var/app/dist" )
+                C.Service.Volume.volume( "react-static-files", "/var/app/dist" )
 
             ],
 
@@ -84,7 +84,7 @@ C.File.new(
             command  = [ "sh bootstrap-prod.sh" ],
             volumes  = [
 
-                C.Service.Volume.mount( "django-static-files", "/var/app/static-files" )
+                C.Service.Volume.volume( "django-static-files", "/var/app/static-files" )
 
             ],
 
