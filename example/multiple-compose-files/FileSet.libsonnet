@@ -177,7 +177,8 @@ local merge_service_file_sets( kv, output ) = (
             local build = self[ "docker-compose.build.yml" ]
                 .service( service_name, C.Service.new( [ builder ], 
 
-                    image = "%s/%s:%s" % name,
+                    container_name = "%s__builder" % service_name ,
+                    image = "${REGISTRY:-}%s/%s:%s" % name,
                     build = { context : "." },
 
                 ));
@@ -186,7 +187,8 @@ local merge_service_file_sets( kv, output ) = (
             local compose = self[ "docker-compose.yml" ]
                 .service( service_name, C.Service.new( [ service ], 
                 
-                    image = "%s/%s:%s" % name 
+                    container_name = service_name,
+                    image = "${REGISTRY:-}%s/%s:%s" % name 
                     
                 ));
 
