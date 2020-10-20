@@ -81,7 +81,7 @@ $ (
     | xargs --replace='{}' bash -xc '{}'
 )
 ```
-## Exporting the repository
+## Exporting the registry
 
 ```bash
 # Assuming the registry was started with the previously mentioned command
@@ -93,10 +93,10 @@ docker container commit --change "ENV REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY=
 
 ```bash
 # Restoring the registry from a tar file
-$ docker image load --input ./dockprom-registryt--latest.tar
+$ docker image load --input ./dockprom-registry--latest.tar
 ```
 
-## Building a repository directly from a dockerfile
+## Building a registry directly from a dockerfile
 
 To be honest this was more an experiment than anything else, but it is possible to build a registry image with the images you need from a plain docker file. The command below only works if the docker daemon is exposed on the host machine which isn't great for a production setup either. Although I haven't tested this I guess it would also be possible to mount the docker socket in to the intermediate container as well, and/or share a ssh-key to access the docker daemon over ssh.
 
@@ -119,20 +119,46 @@ $ (
 
 Although creating a quick and dirty registry will do in a pinch it requires that the image attributes in the docker-compose file are prefixed with the registry we want to push the images to. Although this works for this example it might not be what you'd really want for a real world situation. To create something more like what you'd do in the real world we're going to build our own registry from scratch and populate it with the necessary images.
 
-> Keep in mind that the security mechanism here is `silly`, which is not secure. The lowest hanging fruit security mechanism (I think) here would be `htpasswd` as this is still completely self contained but does require the end-user to know a username/password combination before pulling all the images.
+> Big warning here, this is "proper" emphesis on the quoates. For this example to work without to much fussing around the bootstrap registry is still a unsecured registry. Although I think this setup is a good boilerplate to get started rolling your own registries, adding in some basic auth or a token mechanism is fairly straight forward to do. Depending on how you'd like to work with the registry this can also be done after populating it.
 
+> There also seems to be no way around having `docker.io` as _the_ default registry, so to make this work all the images you want to push _must_ be retagged. This unfortunately means that a trivial workflow like: "logging in to your local registry and running a `docker-compose push`" will never work. To work around this the bootstrap-registry has been set up as a passthrough allowing the build to magically fetch everything from the local registry and push it back. Working around this by changing the resolve of `docker.io` looks like a minefield to me personally.
 
 ```bash
-$ docker-compose --file ./docker-compose.build.yml build
-$ docker-compose --file ./docker-compose.registry.yml up
+$ docker-compose --file ./registry.yml run --rm -e "COMPOSE_FILE=./docker-compose.build.yml" registry-builder
 
-$ docker login localhost.:5000                                  \
-    && docker-compose --file ./docker-compose.build.yml push    \
-    ; docker logout localhost.:5000 
-
+# Commit our registry to an image and export it to tar file.
 $ docker commit bootstrap-registry dockprom/registry:latest \
     && docker image save dockprom/registry:latest --output ./dockprom-registry--latest.tar
 
-$ docker-compose --file ./docker-compose.registry.yml down
+# Cleaning up the images is a little fiddly at this point as the intermediate images (bootstrap-registry:*) can't
+# be deleted before the final image is deleted (dockprom/registry:latest). As it has been exported to a file it
+# should be fine.
+```
 
+# Links I found useful during the building of this example
+
+* [Dockprom](https://github.com/stefanprodan/dockprom)
+* [Self contained docker registry](https://gist.github.com/AndreSteenveld/2d11e9361baeb4d931fb5994fe5e0788)
+* [Enable TCP port 2375 for external connections to Docker](https://gist.github.com/styblope/dc55e0ad2a9848f2cc3307d4819d819f)
+* [Regression in docker login subcommand](https://github.com/docker/compose-cli/issues/712)
+
+The `/etc/docker/daemon.json` I ended up with after getting everything up and running:
+
+```json
+{
+
+    "dns" : [ "8.8.8.8", "1.1.1.1" ],
+    "allow-nondistributable-artifacts": [
+        "localhost:5000",
+        "127.0.0.0/8"
+    ],
+    "insecure-registries": [
+        "localhost:5000",
+        "127.0.0.0/8"
+    ],
+    "registry-mirrors": [
+        "http://localhost:5000"
+    ],
+    "hosts": [ "tcp://localhost:2375", "unix:///var/run/docker.sock" ]
+}
 ```

@@ -1,0 +1,19 @@
+version: "3.8"
+
+services: 
+  bootstrap-registry:
+    container_name: bootstrap-registry
+    ports: [ "5000:5000" ]
+    image: bootstrap-registry:${BUILD_PHASE:-pull-through}
+    build:
+      target: bootstrap-registry
+      context: ./registry
+
+  registry-builder:
+    container_name: registry-builder
+    build:
+      target: registry-builder
+      context: ./registry
+    volumes:
+      - //var/run/docker.sock://var/run/docker.sock
+      - .://tmp/context

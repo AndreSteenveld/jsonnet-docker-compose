@@ -178,7 +178,7 @@ local merge_service_file_sets( kv, output ) = (
                 .service( service_name, C.Service.new( [ builder ], 
 
                     container_name = "%s__builder" % service_name ,
-                    image = "${REGISTRY:-}%s/%s:%s" % name,
+                    image = "${REGISTRY:-docker.io/}%s/%s:%s" % name,
                     build = { context : "." },
 
                 ));
@@ -188,7 +188,7 @@ local merge_service_file_sets( kv, output ) = (
                 .service( service_name, C.Service.new( [ service ], 
                 
                     container_name = service_name,
-                    image = "${REGISTRY:-}%s/%s:%s" % name 
+                    image = "${REGISTRY:-docker.io/}%s/%s:%s" % name 
                     
                 ));
 
