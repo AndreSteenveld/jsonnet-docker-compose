@@ -1,0 +1,1 @@
+The schema used to create this was : https://github.com/docker/compose/blob/1.26.2/compose/config/config_schema_v3.8.json

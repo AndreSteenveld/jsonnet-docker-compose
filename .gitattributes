@@ -1,0 +1,8 @@
+*.md	text	eol=lf
+*.libsonnet	text	eol=lf
+*.jsonnet	text	eol=lf
+*.yml		text	eol=lf
+*.json		text	eol=lf
+
+[Dd]ockerfile	text	eol=lf
+*.dockerfile	text	eol=lf
