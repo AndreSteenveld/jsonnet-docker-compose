@@ -1,6 +1,6 @@
-local FileSet = import "./FileSet.libsonnet";
+local C = import "../../compose.libsonnet";
 
-local file_set = FileSet.from({
+local file_set = C.FileSet.from({
 
     // Jsonnet doesn't allow computed import statements, so this is the one place where
     // we will just have to bang out some of the paths.
@@ -14,4 +14,4 @@ local file_set = FileSet.from({
 
 });
 
-FileSet.manifestFileSet( file_set )
+C.FileSet.manifestFileSet( file_set )

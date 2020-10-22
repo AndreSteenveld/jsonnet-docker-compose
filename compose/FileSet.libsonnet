@@ -1,23 +1,21 @@
-//
-// This file feels like it should be part of the general "jsonnet-docker-compose" source and not
-// specific to this example. Move it after the example is done?
-//
-local C = import "../../compose.libsonnet";
-local U = import "../../compose/utilities.libsonnet";
+local U = import "./utilities.libsonnet";
+
+local File = import "./File.libsonnet";
+local Servide = import "./Service.libsonnet";
 
 local compose_file( base_path, output, mixin, file_name = "docker-compose.yml" ) = (
     
-    local left  = U.get( output, file_name, C.File.new( ) );
-    local right = U.get( mixin, file_name, C.File.new( ) );
+    local left  = U.get( output, file_name, File.new( ) );
+    local right = U.get( mixin, file_name, File.new( ) );
 
-    { name : file_name, content : C.File.combine( left, right ) }
+    { name : file_name, content : File.combine( left, right ) }
 
 );
 
 local override_file( base_path, output, mixin, file_name = "docker-compose.override.yml" ) = (
     
-    local left  = U.get( output, file_name, C.File.new( ) );
-    local right = U.get( mixin, file_name, C.File.new( ) );
+    local left  = U.get( output, file_name, File.new( ) );
+    local right = U.get( mixin, file_name, File.new( ) );
 
     //
     // Make sure to prefix the bindings with the appropiate base_path as well. With this
@@ -45,14 +43,14 @@ local override_file( base_path, output, mixin, file_name = "docker-compose.overr
 
     local nested = std.mergePatch( right, { services : U.to_object( nested_service_volumes ) } );
 
-    { name : file_name, content : C.File.combine( left,  nested ) }
+    { name : file_name, content : File.combine( left,  nested ) }
 
 );
 
 local build_file( base_path, output, mixin, file_name = "docker-compose.build.yml" ) = (
     
-    local left  = U.get( output, file_name, C.File.new( ) );
-    local right = U.get( mixin, file_name, C.File.new( ) );
+    local left  = U.get( output, file_name, File.new( ) );
+    local right = U.get( mixin, file_name, File.new( ) );
 
     local service_name = mixin.service_name;
     local service = right.services[ service_name ];
@@ -60,11 +58,11 @@ local build_file( base_path, output, mixin, file_name = "docker-compose.build.ym
     { 
         name : file_name,
     
-        content : C.File.new( [ left ],
+        content : File.new( [ left ],
             version = "3.8",
             services = {
 
-                [ service_name ] : C.Service.new( [ service ],
+                [ service_name ] : Service.new( [ service ],
 
                     build = {
                         context    : base_path + U.get( service.build, "context", "." ),
@@ -139,9 +137,9 @@ local merge_service_file_sets( kv, output ) = (
             merge_service_file_sets,
             U.entries( mapping ),
             {
-                "docker-compose.yml" : C.File.new( ),
-                "docker-compose.override.yml" : C.File.new( ),
-                "docker-compose.build.yml" : C.File.new( )
+                "docker-compose.yml" : File.new( ),
+                "docker-compose.override.yml" : File.new( ),
+                "docker-compose.build.yml" : File.new( )
             }
         )
 
@@ -151,9 +149,9 @@ local merge_service_file_sets( kv, output ) = (
         
         version = null,
 
-        build    = C.File.new( version = version ),
-        compose  = C.File.new( version = version ),
-        override = C.File.new( version = version )
+        build    = File.new( version = version ),
+        compose  = File.new( version = version ),
+        override = File.new( version = version )
 
     )({
 
@@ -165,9 +163,9 @@ local merge_service_file_sets( kv, output ) = (
             service_name, image,
             name        = image,
             files       = { },
-            service     = C.Service.new( ),
-            development = C.Service.new( ),
-            builder     = C.Service.new( ),
+            service     = Service.new( ),
+            development = Service.new( ),
+            builder     = Service.new( ),
             dockerfile  = |||
                 FROM %(image)s AS %(service_name)s
                 %(files)s
@@ -175,7 +173,7 @@ local merge_service_file_sets( kv, output ) = (
         )( 
 
             local build = self[ "docker-compose.build.yml" ]
-                .service( service_name, C.Service.new( [ builder ], 
+                .service( service_name, Service.new( [ builder ], 
 
                     container_name = "%s__builder" % service_name ,
                     image = "${REGISTRY:-docker.io/}%s/%s:%s" % name,
@@ -185,7 +183,7 @@ local merge_service_file_sets( kv, output ) = (
                 
 
             local compose = self[ "docker-compose.yml" ]
-                .service( service_name, C.Service.new( [ service ], 
+                .service( service_name, Service.new( [ service ], 
                 
                     container_name = service_name,
                     image = "${REGISTRY:-docker.io/}%s/%s:%s" % name 
@@ -193,9 +191,9 @@ local merge_service_file_sets( kv, output ) = (
                 ));
 
             local override = self[ "docker-compose.override.yml" ]
-                .service( service_name, C.Service.new( [ development ], 
+                .service( service_name, Service.new( [ development ], 
             
-                    volumes = U.setMap( C.Service.Volume.bind, files )
+                    volumes = U.setMap( Service.Volume.bind, files )
 
                 ));
 
