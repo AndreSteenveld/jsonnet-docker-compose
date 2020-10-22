@@ -1,7 +1,7 @@
 local U = import "./utilities.libsonnet";
 
 local File = import "./File.libsonnet";
-local Servide = import "./Service.libsonnet";
+local Service = import "./Service.libsonnet";
 
 local compose_file( base_path, output, mixin, file_name = "docker-compose.yml" ) = (
     

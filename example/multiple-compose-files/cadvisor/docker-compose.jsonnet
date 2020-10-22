@@ -1,8 +1,7 @@
 local C = import "../../../compose.libsonnet";
 local common = import "../common.libsonnet";
-local FileSet = import "../FileSet.libsonnet";
 
-FileSet
+C.FileSet
     .new(
         build    = common.file.build,
         compose  = common.file.compose,
@@ -28,17 +27,8 @@ FileSet
                 // C.Service.Volume.bind( "/cgroup", "/cgroup" ),
             ],
 
-            ports = C.Service.ports.mappings({
-                "3000" : "3000",
-                "9090" : "9090",
-                "9093" : "9093",
-                "9091" : "9091"
-            }),
+            expose = [ 8080 ],
 
-            environment = {
-                "ADMIN_USER" : "${ADMIN_USER:-admin}",
-                "ADMIN_PASSWORD" : "${ADMIN_PASSWORD:-admin}"
-            },
 
         )
 

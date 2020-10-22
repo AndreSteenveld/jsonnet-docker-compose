@@ -1,8 +1,7 @@
 local C = import "../../../compose.libsonnet";
 local common = import "../common.libsonnet";
-local FileSet = import "../FileSet.libsonnet";
 
-FileSet
+C.FileSet
     .new(
         build    = common.file.build,
         // Although this works I am not really sold on it, it feels a lot like "Ah just set a global varible, it will 
