@@ -31,7 +31,8 @@ local new = function(
         configs  = null
     )
     mixin( mixins, { }
-        + {
+        + 
+        {
 
             service :: function( name, service = Service.new( ) ) self + std.mergePatch( self, { 
 
@@ -48,6 +49,18 @@ local new = function(
             volume :: function( name, volume = Volume.new( ) ) self + std.mergePatch( self, {
 
                 volumes : { [ name ] : volume }
+
+            }),
+
+            secret :: function( name, secret = Secret.new( ) ) self + std.mergePatch( self, {
+
+                secrets : { [ name ] : secret },
+
+            }),
+
+            config :: function( name, config = Config.new( ) ) self + std.mergePatch( self, {
+
+                configs : { [ name ] : config },
 
             })
 

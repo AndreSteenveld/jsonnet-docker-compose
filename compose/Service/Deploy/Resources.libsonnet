@@ -1,5 +1,5 @@
-local U = import "../utilities.libsonnet";
-local V = import "../validate.libsonnet";
+local U = import "../../utilities.libsonnet";
+local V = import "../../validate.libsonnet";
 
 local combiner = U.map_combiner({ });
 
@@ -10,9 +10,8 @@ local new = function(
 
         mixins = [ ],
 
-        config  = null,
-        file    = null,
-        registry = null
+        limits = null,
+        reservations = null
 
     )
     mixin( mixins, { } 
@@ -20,13 +19,12 @@ local new = function(
         {
             [ U.key( kv ) ] : U.value( kv ) for kv in [
 
-                V.optional( "config", config ),
-                V.optional( "file", file ),
-                V.optional( "registry", registry )
+                V.optional( "limits", limits ),
+                V.optional( "reservations", reservations )
 
             ]
-
         }
+    
     );
 
 {

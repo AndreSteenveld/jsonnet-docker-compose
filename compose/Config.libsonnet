@@ -1,17 +1,40 @@
-local utilities = import "../utilities.libsonnet";
+local U = import "./utilities.libsonnet";
+local V = import "./validate.libsonnet";
 
 local combiner = function( left, right ) { };
 
-local combine = utilities.combine( { }, combiner );
-local mixin = utilities.mixin( combine );
+local combine = U.combine( { }, combiner );
+local mixin = U.mixin( combine );
 
 local new = function( 
         
-        mixins = [ ]
+        mixins = [ ],
+
+        name            = null,
+        file            = null,
+        external        = null,
+        labels          = null,
+        template_driver = null,
     
     )
-    mixin( mixins, {
-        
-    });
+    mixin( mixins, { }
+        +
+        {
 
-{ new :: new }
+            [ U.key( kv ) ] : U.value( kv ) for kv in [
+                
+                V.optional( "name", name ),
+                V.optional( "file", file ),
+                V.optional( "external", external ),
+                V.optional( "labels", labels ),
+                V.optional( "template_driver", template_driver )
+
+            ]
+
+        }
+    );
+
+{ 
+    new :: new,
+    combine :: combine 
+}

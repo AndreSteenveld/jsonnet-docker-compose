@@ -11,12 +11,35 @@ local new = function(
         type,
         source,
         target,
+
+        read_only   = null,
+        consistency = null,
+        bind        = null,
+        volume      = null,
+        tmpfs       = null
+
     )
-    mixin( mixins, {
-        type : type,
-        source : source,
-        target : target,
-    });
+    mixin( mixins, 
+        {
+            type : type,
+            source : source,
+            target : target,
+        }
+        +
+        {
+
+            [ U.key( kv ) ] : U.value( kv ) for kv in [
+
+                V.optional( "read_only", read_only ),
+                V.optional( "consistency", consistency ),
+                V.optional( "bind", bind ),
+                V.optional( "volume", volume ),
+                V.optional( "tmpfs", tmpfs )
+
+            ]
+
+        }
+    );
 
 { 
     new :: new,

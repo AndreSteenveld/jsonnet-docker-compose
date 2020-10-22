@@ -27,7 +27,8 @@ local ipam_mixin = U.mixin( ipam_combine );
 
 local ipam_new = function( 
         mixins = [ ],
-        
+        driver = null,
+        config = null,
     )
     ipam_mixin( mixins, {
 
@@ -43,17 +44,36 @@ local network_mixin = U.mixin( network_combine );
 
 local network_new = function( 
         mixins = [ ],
-        driver = null,
+        
+        name        = null,
+        driver      = null,
+        driver_opts = null,
+        ipam        = null,
+        external    = null,
+        internal    = null,
+        attachable  = null,
+        labels      = null
+
     )
-    network_mixin( mixins, {
+    network_mixin( mixins, { }
+        +
+        {
 
-        [ U.key( kv ) ] : U.value( kv ) for kv in [
+            [ U.key( kv ) ] : U.value( kv ) for kv in [
 
-            V.optional( "driver", driver )
+                V.optional( "name", name ),
+                V.optional( "driver", driver ),
+                V.optional( "driver_opts", driver_opts ),
+                V.optional( "ipam", ipam ),
+                V.optional( "external", external ),
+                V.optional( "internal", internal ),
+                V.optional( "attachable", attachable ),
+                V.optional( "labels", labels )
 
-        ]
+            ]
 
-    });
+        }
+    );
 
 {
     new :: network_new,
