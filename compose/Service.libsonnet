@@ -2,22 +2,32 @@ local U = import "./utilities.libsonnet";
 local V = import "./validate.libsonnet";
 
 local Service = {
-    BlockIOConfig :: import "./Service/BlockIOConfig.libsonnet",
     Build         :: import "./Service/Build.libsonnet",
-    Deploy        :: import "./Service/Deploy.libsonnet",
     CredentialSpec :: import "./Service/CredentialSpec.libsonnet",
+    Deploy        :: import "./Service/Deploy.libsonnet",
     Healthcheck   :: import "./Service/Healthcheck.libsonnet",
-    ULimits       :: import "./Service/ULimits.libsonnet", 
     Logging       :: import "./Service/Logging.libsonnet",
+    Port          :: import "./Service/Port.libsonnet",
+    ULimits       :: import "./Service/ULimits.libsonnet", 
+    Volume        :: import "./Service/Volume.libsonnet",
+    
     Config        :: import "./Service/Config.libsonnet",
     Secret        :: import "./Service/Secret.libsonnet",
-    Extends       :: import "./Service/Extends.libsonnet",
-    DependsOn     :: import "./Service/DependsOn.libsonnet",
-    Port          :: import "./Service/Port.libsonnet",
-    Volume        :: import "./Service/Volume.libsonnet"
 };
 
-local combiner = U.map_combiner({ });
+local combiner = U.map_combiner({ 
+
+    build           :: Service.Build.combine,
+    deploy          :: Service.Deploy.combine,
+    credential_spec :: Service.CredentialSpec.combine,
+    healthcheck     :: Service.Healthcheck.combine,
+    logging         :: Service.Logging.combine,
+    
+    // We need to do something with regards to combining arrays and deep inspection?
+    // ports( ) :: Service.Port.combine,
+    // volumes( ) :: null
+
+});
 
 local combine = U.combine( U.empty, combiner );
 local mixin = U.mixin( combine );
@@ -184,6 +194,13 @@ local new = function(
 Service + {
     new :: new,
     combine :: combine,
+
+    volumes :: {
+
+        bind :: function( files ) U.setMap( Service.Volume.bind, files ),
+        volume :: function( files ) U.setMap( Service.Volume.volume, files )
+
+    },
 
     ports :: {
         mappings :: function( mappings )(
