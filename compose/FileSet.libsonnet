@@ -52,50 +52,68 @@ local build_file( base_path, output, mixin, file_name = "docker-compose.build.ym
     local left  = U.get( output, file_name, File.new( ) );
     local right = U.get( mixin, file_name, File.new( ) );
 
-    local service_name = mixin.service_name;
-    local service = right.services[ service_name ];
+    local services = std.foldr( 
+        function( kv, output )(
 
-    { 
-        name : file_name,
-    
-        content : File.new( [ left ],
-            version = "3.8",
-            services = {
+            local key     = U.key( kv );
+            local service = U.value( kv );
 
-                [ service_name ] : Service.new( [ service ],
+            local patch = {
+                build : {
+                    context : base_path + U.get( service.build, "context", "." ),
+                },
+            };
 
-                    build = {
-                        context    : base_path + U.get( service.build, "context", "." ),
-                        //dockerfile : base_path + U.get( service.build, "dockerfile", "Dockerfile" ),
-                        target     : service_name
-                    },
+            output + {
+                
+                [ key ] : std.mergePatch( service, patch )
 
-                )
+            }
 
-            },
+        ),
+        U.entries( U.get( right, "services", { } ) ),
+        U.empty( )
+    );
 
-        )
+    { name : file_name, content : File.new( [ left, right ], services = services ) }
 
-    }
+);
+
+local dockerfiles( base_path, mixin ) = (
+
+    local filter( kv ) = ( 
+        
+        local file_name = U.key( kv );
+        local content = U.value( kv );
+
+        std.isString( content ) 
+            && file_name != "docker-compose.yml"
+            && file_name != "docker-compose.override.yml"
+            && file_name != "docker-compose.build.yml"
+
+    );
+
+    local map( kv ) = ({ name : base_path + U.key( kv ), content : U.value( kv ) }); 
+
+    std.filterMap( filter, map, U.entries( mixin ) )
 
 );
 
 local merge_service_file_sets( kv, output ) = (
 
     local base_path = U.key( kv );
+    local file_set  = U.value( kv );
 
-    output 
-        + { [ base_path + "Dockerfile" ] : U.value( kv )[ "Dockerfile" ] }
-        + {
-            
-            [ file.name ] : file.content for file in [
+    output + {
+        
+        [ file.name ] : file.content for file in dockerfiles( base_path, file_set ) + [
 
-                compose_file( base_path, output, U.value( kv ) ),
-                override_file( base_path, output, U.value( kv ) ),
-                build_file( base_path, output, U.value( kv ) )
+            build_file( base_path, output, file_set ),
+            compose_file( base_path, output, file_set ),
+            override_file( base_path, output, file_set ),
 
-            ]
-        }
+        ]
+    }
 
 );
 
@@ -137,9 +155,9 @@ local merge_service_file_sets( kv, output ) = (
             merge_service_file_sets,
             U.entries( mapping ),
             {
+                "docker-compose.build.yml" : File.new( ),
                 "docker-compose.yml" : File.new( ),
-                "docker-compose.override.yml" : File.new( ),
-                "docker-compose.build.yml" : File.new( )
+                "docker-compose.override.yml" : File.new( )
             }
         )
 
@@ -153,80 +171,89 @@ local merge_service_file_sets( kv, output ) = (
         compose  = File.new( version = version ),
         override = File.new( version = version )
 
-    )({
+    )(
+        
+        local build_file    = "docker-compose.build.yml";
+        local compose_file  = "docker-compose.yml";
+        local override_file = "docker-compose.override.yml";
 
-        "docker-compose.build.yml"    : build,
-        "docker-compose.yml"          : compose,
-        "docker-compose.override.yml" : override,
+        {
 
-        service :: function( 
-            service_name, image,
-            name        = image,
-            files       = { },
-            service     = Service.new( ),
-            development = Service.new( ),
-            builder     = Service.new( ),
-            dockerfile  = |||
-                FROM %(image)s AS %(service_name)s
-                %(files)s
-            |||
-        )( 
+            [ build_file ]    : build,
+            [ compose_file ]  : compose,
+            [ override_file ] : override,
 
-            local build = self[ "docker-compose.build.yml" ]
-                .service( service_name, Service.new( [ builder ], 
+            service :: function( 
+                service_name, image,
+                name        = image,
+                files       = { },
+                service     = Service.new( ),
+                development = Service.new( ),
+                builder     = Service.new( ),
+                dockerfile  = "Dockerfile",
+                template    = |||
+                    FROM %(image)s AS %(service_name)s
+                    %(files)s
+                |||
+            )( 
 
-                    container_name = "%s__builder" % service_name ,
-                    image = "${REGISTRY:-docker.io/}%s/%s:%s" % name,
-                    build = { context : "." },
+                local build = self[ build_file ]
+                    .service( service_name, Service.new( [ builder ], 
 
-                ));
-                
+                        container_name = "%s__builder" % service_name ,
+                        image = "${REGISTRY:-docker.io/}%s/%s:%s" % name,
+                        build = { 
+                            context : ".",
+                            dockerfile : dockerfile
+                        },
 
-            local compose = self[ "docker-compose.yml" ]
-                .service( service_name, Service.new( [ service ], 
-                
-                    container_name = service_name,
-                    image = "${REGISTRY:-docker.io/}%s/%s:%s" % name 
+                    ));
+
+                local compose = self[ compose_file ]
+                    .service( service_name, Service.new( [ service ], 
                     
-                ));
+                        container_name = service_name,
+                        image = "${REGISTRY:-docker.io/}%s/%s:%s" % name 
+                        
+                    ));
 
-            local override = self[ "docker-compose.override.yml" ]
-                .service( service_name, Service.new( [ development ], 
-            
-                    volumes = U.setMap( Service.Volume.bind, files )
+                local override = self[ override_file ]
+                    .service( service_name, Service.new( [ development ], 
+                
+                        volumes = U.setMap( Service.Volume.bind, files )
 
-                ));
+                    ));
 
-            { } + self + {
-            
-                service_name :: service_name,
+                { } + self + {
 
-                "docker-compose.build.yml"    : build,
-                "docker-compose.yml"          : compose,
-                "docker-compose.override.yml" : override,
+                    [ build_file ]    : build,
+                    [ compose_file ]  : compose,
+                    [ override_file ] : override,
 
-                "Dockerfile" : dockerfile % {
+                    [ dockerfile ] : template % {
 
-                    service_name : service_name,
+                        service_name : service_name,
 
-                    image : "%s/%s:%s" % image,
-                    name  : "%s/%s:%s" % name,
+                        image : "%s/%s:%s" % image,
+                        name  : "%s/%s:%s" % name,
 
-                    files : std.lines(
-                    
-                        U.setMap( 
-                            function( source, target ) "COPY %s %s" % [ source, target ],
-                            files
+                        files : std.lines(
+                        
+                            U.setMap( 
+                                function( source, target ) "COPY %s %s" % [ source, target ],
+                                files
+                            )
+                        
                         )
-                    
-                    )
+
+                    }
 
                 }
 
-            }
+            )
 
-        )
-
-    })
+        }
+    
+    )
 
 }
