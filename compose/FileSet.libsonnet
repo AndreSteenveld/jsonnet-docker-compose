@@ -197,32 +197,43 @@ local merge_service_file_sets( kv, output ) = (
                 |||
             )( 
 
-                local build = self[ build_file ]
-                    .service( service_name, Service.new( [ builder ], 
+                local build = if null == builder 
+                    then self[ build_file ] 
+                    else self[ build_file ]
+                        .service( service_name, Service.new( [ builder ], 
 
-                        container_name = "%s__builder" % service_name ,
-                        image = "${REGISTRY:-docker.io/}%s/%s:%s" % name,
-                        build = { 
-                            context : ".",
-                            dockerfile : dockerfile
-                        },
+                            container_name = "%s__builder" % service_name ,
+                            image = "${REGISTRY:-docker.io/}%s/%s:%s" % name,
+                            build = { 
+                                context : ".",
+                                dockerfile : dockerfile
+                            },
 
-                    ));
+                        ));
 
-                local compose = self[ compose_file ]
-                    .service( service_name, Service.new( [ service ], 
-                    
-                        container_name = service_name,
-                        image = "${REGISTRY:-docker.io/}%s/%s:%s" % name 
+                local compose = if null == service
+                    then self[ compose_file ]
+                    else self[ compose_file ]
+                        .service( service_name, Service.new( [ service ], 
                         
-                    ));
+                            container_name = service_name,
+                            image = "${REGISTRY:-docker.io/}%s/%s:%s" % name 
+                            
+                        ));
 
-                local override = self[ override_file ]
-                    .service( service_name, Service.new( [ development ], 
+                local override = if null == development
+                    then self[ override_file ]
+                    else self[ override_file ]
+                        .service( service_name, Service.new( [ development ], 
                 
-                        volumes = U.setMap( Service.Volume.bind, files )
+                            // Copy these over for the "development"-only type of services, seems like
+                            // the cleanest solution.
+                            container_name = service_name,
+                            image = "${REGISTRY:-docker.io/}%s/%s:%s" % name,
 
-                    ));
+                            volumes = U.setMap( Service.Volume.bind, files )
+
+                        ));
 
                 { } + self + {
 
