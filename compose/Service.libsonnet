@@ -203,7 +203,7 @@ Service + {
     },
 
     ports :: {
-        mappings :: function( mappings )(
+        map :: function( mappings )(
 
             U.setMap(
                 function( k, v ) Service.Port.new( [ ], k, v ),
