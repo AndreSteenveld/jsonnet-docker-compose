@@ -7,14 +7,13 @@ local Volume  = import "./Volume.libsonnet";
 local Secret  = import "./Secret.libsonnet";
 local Config  = import "./Config.libsonnet";
 
-local combiner = U.map_combiner({
+local combiner = U.combiner.map({
 
-    //version( l, r ) :: ( l ),
-    services :: U.map_combiner({ "*"( l, r, k ) :: Service.combine( l, r ) }),
-    networks :: U.map_combiner({ "*"( l, r, k ) :: Network.combine( l, r ) }),
-    volumes :: U.map_combiner({ "*"( l, r, k ) :: Volume.combine( l, r ) }),
-    secrets :: U.map_combiner({ "*"( l, r, k ) :: Secret.combine( l, r ) }),
-    configs :: U.map_combiner({ "*"( l, r, k ) :: Config.combine( l, r ) }),
+    services :: U.combiner.map({ "*"( l, r, k ) :: Service.combine( l, r ) }),
+    networks :: U.combiner.map({ "*"( l, r, k ) :: Network.combine( l, r ) }),
+    volumes :: U.combiner.map({ "*"( l, r, k ) :: Volume.combine( l, r ) }),
+    secrets :: U.combiner.map({ "*"( l, r, k ) :: Secret.combine( l, r ) }),
+    configs :: U.combiner.map({ "*"( l, r, k ) :: Config.combine( l, r ) }),
 
 });
 

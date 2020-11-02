@@ -7,15 +7,18 @@ local Service = {
     Deploy        :: import "./Service/Deploy.libsonnet",
     Healthcheck   :: import "./Service/Healthcheck.libsonnet",
     Logging       :: import "./Service/Logging.libsonnet",
-    Port          :: import "./Service/Port.libsonnet",
-    ULimits       :: import "./Service/ULimits.libsonnet", 
-    Volume        :: import "./Service/Volume.libsonnet",
+    
+    Port          :: import "./Service/Port.libsonnet", 
     
     Config        :: import "./Service/Config.libsonnet",
     Secret        :: import "./Service/Secret.libsonnet",
+
+    Network       :: import "./Service/Network.libsonnet",
+    ULimit        :: import "./Service/ULimit.libsonnet",
+    Volume        :: import "./Service/Volume.libsonnet"
 };
 
-local combiner = U.map_combiner({ 
+local combiner = U.combiner.map({ 
 
     build           :: Service.Build.combine,
     deploy          :: Service.Deploy.combine,
@@ -23,9 +26,32 @@ local combiner = U.map_combiner({
     healthcheck     :: Service.Healthcheck.combine,
     logging         :: Service.Logging.combine,
     
-    // We need to do something with regards to combining arrays and deep inspection?
-    // ports( ) :: Service.Port.combine,
-    // volumes( ) :: null
+    networks :: U.combiner.union( Service.Network.combine ),
+    ulimits  :: U.combiner.union( Service.ULimit.combine ),
+    
+    // Because we're actually talking about a list of objects I think it
+    // might be OK to do a unique/append here instead of a deep merge?
+    volumes :: U.combiner.unique( U.combiner.append, function( o )( o.target ) ),
+
+    cap_add     :: U.combiner.unique( U.combiner.append ),
+    cap_drop    :: U.combiner.unique( U.combiner.append ),
+    configs     :: U.combiner.unique( U.combiner.append, function( o )( o.target ) ),
+    secrets     :: U.combiner.unique( U.combiner.append, function( o )( o.target ) ),
+    depends_on  :: U.combiner.unique( U.combiner.append ),
+    devices     :: U.combiner.unique( U.combiner.append ),
+    dns         :: U.combiner.unique( U.combiner.append ),
+    dns_search  :: U.combiner.unique( U.combiner.append ),    
+    env_file    :: U.combiner.unique( U.combiner.append ),
+    environment :: U.combiner.merge,
+    expose      :: U.combiner.unique( U.combiner.append ),
+    external_links :: U.combiner.unique( U.combiner.append ),
+    extra_hosts :: U.combiner.unique( U.combiner.append ),
+    labels      :: U.combiner.merge,
+    links       :: U.combiner.unique( U.combiner.append ),
+    ports       :: U.combiner.unique( U.combiner.append, function( o )( o.out ) ),
+    security_opt :: U.combiner.unique( U.combiner.append ),
+    sysctls     :: U.combiner.unique( U.combiner.append ),
+    tmpfs       :: U.combiner.unique( U.combiner.append )
 
 });
 

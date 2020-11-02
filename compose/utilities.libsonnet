@@ -161,7 +161,7 @@ local combiner_map( mapping ) = combiner_union( function( l, r, k )(
         
         merge( l, r ) :: ( l + r ),
 
-        apppend( l, r ) :: ( l + r ),
+        append( l, r )  :: ( l + r ),
         prepend( l, r ) :: ( r + l ),
         replace( l, r ) :: ( r ),
 
