@@ -73,67 +73,67 @@ local unzip_objects( left, right ) = (
 
 );
 
-local map_combiner( handlers ) = (
+local combiner_union( combiner ) = (
 
     function( left, right )(
-        
-        local combined = std.foldr(
+
+        local combined = std.foldr( 
 
             function( tuple, _ )(
 
                 local tkey   = key( tuple );
-                local tleft  = if null == tuple[ 1 ] then [ null, null ] else tuple[ 1 ];
-                local tright = if null == tuple[ 2 ] then [ null, null ] else tuple[ 2 ];
+                local tleft  = tuple[ 1 ];
+                local tright = tuple[ 2 ];
 
-                local left_has_entry = null != key( tleft );
-                local right_has_entry = null != key( tright ); 
-
-                local handler = 
-                    if std.objectHasAll( handlers, tkey ) 
-                    then function( l, r, k )( 
-                        
-                        handlers[ tkey ]( value( l ), value( r ) ) 
-                        
-                    )
-                    else 
-                        if std.objectHasAll( handlers, "*" )
-                        then function( l, r, k )( 
-                            
-                            handlers[ "*" ]( value( l ), value( r ), k ) 
-                            
-                        )
-                        else function( l, r, k )(
-
-                            get( to_object([ l, r ]), k )
-
-                        )
-                ;
-
-                _ + { 
-                
-                    [ tkey ] : 
-                        if left_has_entry && right_has_entry 
-                        then handler( tleft, tright, tkey )
-                        else 
-                            if right_has_entry 
-                            then value( tright )
-                            else value( tleft ) 
-                    
-                }
-              
+                _ + { [ tkey ] : combiner( tleft, tright, tkey ) }
+            
             ),
 
             unzip_objects( left, right ),
 
             empty( )
-        
+
         );
 
         combined
-        
+
     )
 
 );
+
+local combiner_map( mapping ) = combiner_union( function( l, r, k )(
+
+    local left_exists = std.isArray( l );
+    local right_exists = std.isArray( r );
+    
+    if left_exists && right_exists && std.objectHasAll( mapping, k ) then
+                        
+        mapping[ k ]( 
+            if left_exists then value( l ) else null, 
+            if right_exists then value( r ) else null
+        ) 
+                        
+    else if left_exists && right_exists && std.objectHasAll( mapping, "*" ) then 
+        
+        mapping[ "*" ]( 
+            if left_exists then value( l ) else null, 
+            if right_exists then value( r ) else null, 
+            k 
+        ) 
+
+    else if right_exists then
+
+        value( r )
+
+    else if left_exists then
+
+        value( l )
+
+    else 
+
+        null
+
+));
 
 {
     empty :: empty,
@@ -157,6 +157,19 @@ local map_combiner( handlers ) = (
 
     unzip_objects :: unzip_objects,
 
-    map_combiner :: map_combiner,
+    combiner : {
+        
+        merge( l, r ) :: ( l + r ),
+
+        apppend( l, r ) :: ( l + r ),
+        prepend( l, r ) :: ( r + l ),
+        replace( l, r ) :: ( r ),
+
+        unique( o, key = function( v ) v ) :: function( l, r ) std.set( o( l, r ), key ),
+
+        map :: combiner_map,
+        union :: combiner_union
+
+    },
 
 }

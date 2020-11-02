@@ -151,7 +151,7 @@ local test( name, test ) = (
 
     )),
 
-    test( "utilities#map_combiner - without handlers", function( ) (
+    test( "utilities#combiner.map - without handlers", function( ) (
 
         local handlers = { };
 
@@ -171,17 +171,18 @@ local test( name, test ) = (
             right : "right"
         };
 
-        local combine = U.map_combiner( handlers );
+        local combine = U.combiner.map( handlers );
 
         assert std.isFunction( combine ) : "combine is not a function";
         assert { } == combine( { }, { } ) : "combining empty object did not yield an empty object";
+
         assert combined == combine( left, right ) : "Combination of left and right yielded unexpected result";
 
         true
 
     )),
 
-    test( "utilities#map_combiner - with catch all", function( ) (
+    test( "utilities#combiner.map - with catch all", function( ) (
 
         local handlers = {
 
@@ -209,7 +210,7 @@ local test( name, test ) = (
             right  : "right"
         };
 
-        local combine = U.map_combiner( handlers );
+        local combine = U.combiner.map( handlers );
 
         assert combined == combine( left, right ) : "Combination of left and right yielded unexpected result";
 
@@ -217,7 +218,7 @@ local test( name, test ) = (
 
     )),
 
-    test( "utilities#map_combiner - with specific handler", function( ) (
+    test( "utilities#combiner.map - with specific handler", function( ) (
 
         local handlers = {
 
@@ -245,7 +246,7 @@ local test( name, test ) = (
             right  : "right"
         };
 
-        local combine = U.map_combiner( handlers );
+        local combine = U.combiner.map( handlers );
 
         assert combined == combine( left, right ) : "Combination of left and right yielded unexpected result";
 
@@ -281,7 +282,7 @@ local test( name, test ) = (
             right  : "right"
         };
 
-        local combiner = U.map_combiner( handlers );
+        local combiner = U.combiner.map( handlers );
         local combine = U.combine( U.empty, combiner );
 
         assert std.isFunction( combine ) : "utilities#combine doesn't return a function";
@@ -323,7 +324,7 @@ local test( name, test ) = (
             shared : [ "first", "second", "third", "forth" ],
         };
 
-        local combiner = U.map_combiner( handlers );
+        local combiner = U.combiner.map( handlers );
         local combine = U.combine( U.empty, combiner );
         local mix = U.mixin( combine );
 
