@@ -239,6 +239,28 @@ Service + {
         ),
     },
 
+    command :: {
+
+        shell :: function( command, shell = null, arguments = [ "-c" ] )(
+
+            ( if null == shell then [ ] else [ shell ] ) + arguments + ( if std.isArray( command ) then command else [ command ] )
+
+        ),
+
+        sh :: function( command, arguments = [ "-c" ] )(
+
+            self.shell( shell = "sh", arguments = arguments, command = command )
+
+        ),
+
+        bash :: function( command, arguments = [ "-c" ] )(
+
+            self.shell( shell = "bash", arguments = arguments, command = command )
+
+        )
+
+    },
+
     depends_on( services ) :: services,
     //
     // The compose spec allows for a little more nuance here but as I am currently targeting
