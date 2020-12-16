@@ -15,8 +15,8 @@ local new = function(
     )
     mixin( mixins, { } +
         {
-            target : target,
-            published : published
+            target : std.parseInt( target ),
+            published : std.parseInt( published )
         }
         +
         {

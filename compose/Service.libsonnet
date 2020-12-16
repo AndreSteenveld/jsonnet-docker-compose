@@ -249,13 +249,13 @@ Service + {
 
         sh :: function( command, arguments = [ "-c" ] )(
 
-            self.shell( shell = "sh", arguments = arguments, command = command )
+            self.shell( shell = "/bin/sh", arguments = arguments, command = command )
 
         ),
 
         bash :: function( command, arguments = [ "-c" ] )(
 
-            self.shell( shell = "bash", arguments = arguments, command = command )
+            self.shell( shell = "/bin/bash", arguments = arguments, command = command )
 
         )
 
